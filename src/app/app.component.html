@@ -23,10 +23,12 @@
           <td>{{persona.nombres}}</td>
           <td>{{persona.apellidos}}</td>
           <td>{{persona.tipo_doc}}-{{persona.documento}}</td>
-          <td>
+          <td class="text-center">
             <button class="btn btn-danger btn-sm" (click)="borrarPersona(persona.id)">Borrar</button>
+            &nbsp;
             <button class="btn btn-warning btn-sm" (click)="prepareEditPersona(formPersona, persona)"
-                    data-toggle="modal" data-target="#nuevaPersonaModal">Borrar</button>
+                      data-toggle="modal" data-target="#nuevaPersonaModal">Modificar</button>
+
           </td>
         </tr>
         </tbody>
@@ -55,7 +57,7 @@
           <td>{{premio.codigo}}</td>
           <td>{{premio.descripcion}}</td>
           <td>{{premio.cantidad}}</td>
-          <td>
+          <td class="text-center">
             <button class="btn btn-danger btn-sm" (click)="borrarPremio(premio.id)">Borrar</button>
           </td>
         </tr>
@@ -87,7 +89,7 @@
         <tr *ngFor="let premio of premios">
           <td>{{premio.codigo}}</td>
           <td>{{premio.descripcion}}</td>
-          <td>
+          <td class="text-center">
             <button class="btn btn-danger btn-sm" (click)="borrarPremioPersona(premio.id)">Borrar</button>
           </td>
         </tr>
@@ -165,8 +167,8 @@
                      [class.border-danger]="descripcion.touched && descripcion.invalid"
                      ngModel required #descripcion="ngModel">
 
-              <label for="cantidad" [class.text-danger]="cantidad.touched && cantidad.invalid" >Cantidad*</label>
-              <input type="number" id="cantidad" name="cantidad" class="form-control"
+              <label for="cantidad" [class.text-danger]="cantidad.touched && cantidad.invalid" >Cantidad* (1-999)</label>
+              <input type="number" min="1" max="999" id="cantidad" name="cantidad" class="form-control"
                      [class.border-danger]="cantidad.touched && cantidad.invalid"
                      ngModel required #cantidad="ngModel">
             </div>

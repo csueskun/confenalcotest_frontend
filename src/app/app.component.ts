@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
@@ -7,6 +8,7 @@ import { NgForm } from '@angular/forms';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
+  constructor(private http: HttpClient) { }
   title = 'test01';
   nuevaPersona = {
     nombres: 'Dennis'
@@ -65,10 +67,6 @@ export class AppComponent {
     alert(`Borrando ${id}`);
   }
 
-  realizarSorteo() {
-    return;
-  }
-
   onSubmitPersona(f: NgForm) {
     if (f.valid) {
       this.personas.push(Object.assign({}, f.value));
@@ -81,6 +79,23 @@ export class AppComponent {
       this.premios.push(Object.assign({}, f.value));
       f.reset();
     }
+  }
+  getPersonas() {
+    this.getRequest('url/personas')
+      .subscribe(
+        results => console.log(results),
+        err => console.error('HTTP Error', err)
+      );
+  }
+  getRequest(url: string) {
+    return this.http.get(url).pipe();
+  }
+  realizarSorteo() {
+    this.getRequest('https://jsonplaceholder.typicode.com/todos/1')
+      .subscribe(
+        results => console.log(results),
+        err => console.error('HTTP Error', err)
+      );
   }
 
 }
