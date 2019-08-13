@@ -1,101 +1,141 @@
 import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { Persona } from './models/persona.model';
+import { Premio } from './models/premio.model';
+import { PremioPersona } from './models/premio_persona.model';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
+
 export class AppComponent {
-  constructor(private http: HttpClient) { }
-  title = 'test01';
-  nuevaPersona = {
-    nombres: 'Dennis'
-  };
-  personas = [
-    {
-      id: 1,
-      nombres: 'Carlos',
-      apellidos: 'Suescun',
-      tipo_doc: 'CC',
-      documento: '1090',
-      fecha_nacimiento: '10/12/1998',
-    },
-    {
-      id: 2,
-      nombres: 'Jenny',
-      apellidos: 'Toloza',
-      tipo_doc: 'CC',
-      documento: '1091',
-      fecha_nacimiento: '05/10/1995',
-    },
-  ];
-  premios = [
-    {
-      id: 1,
-      codigo: '01',
-      descripcion: 'Carro',
-      cantidad: 20,
-    },
-    {
-      id: 2,
-      codigo: '02',
-      descripcion: 'Moto',
-      cantidad: 30,
-    },
-    {
-      id: 3,
-      codigo: '03',
-      descripcion: 'Viaje',
-      cantidad: 40,
-    },
-  ];
+  constructor(private http: HttpClient) {
+    this.getPersonas();
+    this.getPremios();
+    this.getPremiosPersonas();
+  }
+  apiUrl = 'http://localhost:8080';
+  nuevaPersona = {};
+  personas = [];
+  premios = [];
+  premiosPersonas = [];
   prepareEditPersona(f: NgForm, persona) {
     f.setValue(persona);
   }
 
   borrarPremio(id) {
-    alert(`Borrando ${id}`);
+    if(!confirm("Seguro quiere borrar el premio?")) return false;
+    this.deleteRequest(`${this.apiUrl}/premios/${id}`)
+      .subscribe(
+        results => {
+          this.getPremios();
+          this.getPremiosPersonas();
+        },
+        err => alert(err)
+      );
   }
 
   borrarPersona(id) {
-    alert(`Borrando ${id}`);
+    if(!confirm("Seguro quiere borrar la persona?")) return false;
+    this.deleteRequest(`${this.apiUrl}/personas/${id}`)
+      .subscribe(
+        results => {
+          this.getPersonas();
+          this.getPremiosPersonas();
+        },
+        err => alert(err)
+      );
   }
 
   borrarPremioPersona(id) {
-    alert(`Borrando ${id}`);
+    if(!confirm("Seguro quiere eliminar el registro? El premio no se devuelve.")) return false;
+    this.deleteRequest(`${this.apiUrl}/premios_personas/${id}`)
+      .subscribe(
+        results => this.getPremiosPersonas(),
+        err => alert(err)
+      );
   }
 
   onSubmitPersona(f: NgForm) {
     if (f.valid) {
-      this.personas.push(Object.assign({}, f.value));
+      let persona = f.value;
+      persona.id = persona.id == ''?null:persona.id;
+      this.postRequest(`${this.apiUrl}/personas`, f.value)
+      .subscribe(
+        results => this.getPersonas(),
+        err => alert(err)
+      );
       f.reset();
     }
   }
 
   onSubmitPremio(f: NgForm) {
     if (f.valid) {
-      this.premios.push(Object.assign({}, f.value));
+      this.postRequest(`${this.apiUrl}/premios`, f.value)
+      .subscribe(
+        results => this.getPremios(),
+        err => alert(err)
+      );
       f.reset();
     }
   }
-  getPersonas() {
-    this.getRequest('url/personas')
+  getPersonas() {    
+    this.getPersonasRequest(`${this.apiUrl}/personas`)
       .subscribe(
-        results => console.log(results),
+        results => this.personas = results,
         err => console.error('HTTP Error', err)
       );
   }
-  getRequest(url: string) {
-    return this.http.get(url).pipe();
+  getPersonasRequest(url: string) {
+    return this.http.get<Persona[]>(url).pipe();
   }
-  realizarSorteo() {
-    this.getRequest('https://jsonplaceholder.typicode.com/todos/1')
+  getPremios() {
+    this.getPremiosRequest(`${this.apiUrl}/premios`)
       .subscribe(
-        results => console.log(results),
+        results => this.premios = results,
         err => console.error('HTTP Error', err)
       );
+  }
+  getPremiosPersonasRequest(url: string) {
+    return this.http.get<PremioPersona[]>(url).pipe();
+  }  
+  getPremiosPersonas() {
+    this.getPremiosPersonasRequest(`${this.apiUrl}/premios_personas`)
+      .subscribe(
+        results => this.premiosPersonas = results,
+        err => console.error('HTTP Error', err)
+      );
+  }
+  getPremiosRequest(url: string) {
+    return this.http.get<Premio[]>(url).pipe();
+  }
+  postRequest(url: string, data: any) {
+    return this.http.post(url, data).pipe();
+  }
+  deleteRequest(url: string) {
+    return this.http.delete(url).pipe();
+  }
+
+  realizarSorteo(){
+    this.realizarSorteoRequest(`${this.apiUrl}/premios/repartir`)
+      .subscribe(
+        results => {
+          if (results<0){
+            alert('No se entregaron premios. No hay participantes o no hay premios.')
+          } 
+          else{
+            this.getPremios();
+            this.getPremiosPersonas();
+          }
+        },
+        err => console.error('HTTP Error', err)
+      );
+  }
+  realizarSorteoRequest(url: string){
+    return this.http.get<number>(url).pipe();
   }
 
 }

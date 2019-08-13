@@ -25,9 +25,6 @@
           <td>{{persona.tipo_doc}}-{{persona.documento}}</td>
           <td class="text-center">
             <button class="btn btn-danger btn-sm" (click)="borrarPersona(persona.id)">Borrar</button>
-            &nbsp;
-            <button class="btn btn-warning btn-sm" (click)="prepareEditPersona(formPersona, persona)"
-                      data-toggle="modal" data-target="#nuevaPersonaModal">Modificar</button>
 
           </td>
         </tr>
@@ -86,11 +83,11 @@
           </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let premio of premios">
-          <td>{{premio.codigo}}</td>
-          <td>{{premio.descripcion}}</td>
+        <tr *ngFor="let premioPersona of premiosPersonas">
+          <td>{{premioPersona.persona.nombres}} {{premioPersona.persona.apellidos}}</td>
+          <td>{{premioPersona.premio.descripcion}}</td>
           <td class="text-center">
-            <button class="btn btn-danger btn-sm" (click)="borrarPremioPersona(premio.id)">Borrar</button>
+            <button class="btn btn-danger btn-sm" (click)="borrarPremioPersona(premioPersona.id)">Borrar</button>
           </td>
         </tr>
         </tbody>
@@ -111,7 +108,7 @@
         </div>
         <div class="modal-body">
             <div class="form-group">
-              <input type="hidden" id="id" name="id" class="form-control" ngModel required #id="ngModel">
+              <input type="hidden" id="id" name="id" class="form-control" ngModel #id="ngModel">
 
               <label for="nombres" [class.text-danger]="nombres.touched && nombres.invalid" >Nombres*</label>
               <input id="nombres" name="nombres" class="form-control"
@@ -129,6 +126,11 @@
                 <option>CC</option>
                 <option>TI</option>
               </select>
+
+              <label for="documento" [class.text-danger]="documento.touched && documento.invalid" >Documento*</label>
+              <input id="documento" name="documento" class="form-control"
+                     [class.border-danger]="documento.touched && documento.invalid"
+                     ngModel required #documento="ngModel">
 
               <label for="fecha_nacimiento">Fecha de nacimiento</label>
               <input type="text" id="fecha_nacimiento" name="fecha_nacimiento" class="form-control" ngModel #fecha_nacimiento="ngModel">
